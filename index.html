@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenditure Cycle Management</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #93c5fd;
+            --secondary: #ec4899;
+            --secondary-light: #f9a8d4;
+            --white: #ffffff;
+            --gray: #f3f4f6;
+            --dark-gray: #6b7280;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--white) 0%, var(--primary-light) 50%, var(--secondary-light) 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .logo {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 28px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .tab:hover {
+            background-color: var(--gray);
+        }
+        
+        .tab.active {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark-gray);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #db2777;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--gray);
+        }
+        
+        tr:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-paid {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 5px;
+            border: none;
+        }
+        
+        .action-btn.view {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .action-btn.edit {
+            background-color: var(--secondary-light);
+            color: var(--secondary);
+        }
+        
+        .action-btn.delete {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--dark-gray);
+        }
+        
+        .search-bar {
+            margin-bottom: 20px;
+        }
+        
+        .search-bar input {
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            width: 300px;
+            max-width: 100%;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .flex-row .form-group {
+            flex: 1;
+        }
+        
+        .item-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: flex-end;
+        }
+        
+        .item-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .item-row button {
+            padding: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .summary-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .summary-card h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .summary-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--secondary);
+            margin: 10px 0;
+        }
+        
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .flex-row {
+                flex-direction: column;
+            }
+        }
+        .action-btn.approve {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.action-btn.reject {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-rejected {
+    background-color: #fee2e2;
+    color: #b91c1c;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">ExpenseTrack</div>
+            <h1>Expenditure Cycle Management System</h1>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('dashboard')">Dashboard</div>
+            <div class="tab" onclick="openTab('requisition')">Requisition</div>
+            <div class="tab" onclick="openTab('purchase-order')">Purchase Order</div>
+            <div class="tab" onclick="openTab('invoice')">Invoice</div>
+            <div class="tab" onclick="openTab('payment')">Payment</div>
+            <div class="tab" onclick="openTab('gl-history')">GL History</div>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard-cards">
+                <div class="summary-card">
+                    <h3>Pending Requisitions</h3>
+                    <div class="summary-value" id="pending-reqs">0</div>
+                    <p>Waiting for approval</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Open POs</h3>
+                    <div class="summary-value" id="open-pos">0</div>
+                    <p>Waiting for delivery</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Unpaid Invoices</h3>
+                    <div class="summary-value" id="unpaid-invoices">0</div>
+                    <p>Due within 30 days</p>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <h3>Recent Activities</h3>
+                <table id="recent-activities">
+                    <thead>
+                        <tr>
+                             <th>Date</th>
+            <th>Type</th>
+            <th>Reference</th>
+            <th>Part/Description</th>
+              <th>Quantity</th>
+            <th>Department</th>
+            <th>Amount</th>
+            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Requisition Tab -->
+        <div id="requisition" class="tab-content">
+            <div class="search-bar">
+                <input type="text" placeholder="Search requisitions...">
+                <button style="float: right;" onclick="openModal('new-requisition')">+ New Requisition</button>
+            </div>
+            
+            <table id="requisition-table">
+                <thead>
+                    <tr>
+                        <th>Req. No</th>
+            <th>Date</th>
+            <th>Department</th>
+            <th>Part/Description</th>
+             <th>Quantity</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+            
+            <!-- New Requisition Modal -->
+            <div id="new-requisition" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">New Requisition</h2>
+                        <button class="close-btn" onclick="closeModal('new-requisition')">&times;</button>
+                    </div>
+                    <div class="flex-row">
+                        <div class="form-group">
+                            <label>Department</label>
+                            <select id="req-department">
+                                <option>Select Department</option>
+                                <option>Finance</option>
+                                <option>Marketing</option>
+                                <option>Production</option>
+                                <option>HR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Supplier</label>
+                            <select id="req-supplier">
+                                <option>Select Supplier</option>
+                                <option>PT. Benang Lie Fung</option>
+                                <option>Stitch Supply</option>
+                                <option> PT. Fajar Faliman Zipper</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>GL Account</label>
+                        <select id="req-gl-account">
+                            <option>Select GL Account</option>
+                            <option>5010 - Office Supplies</option>
+                            <option>5020 - Raw Material Expenses</option>
+                            <option>5030 - Marketing Expenses</option>
+                            <option>5040 - Maintenance Supplies</option>
+                        </select>
+                    </div>
+                    
+                    <h3>Items</h3>
+                    <div id="requisition-items">
+                        <div class="item-row">
+                            <div class="form-group">
+                                <label>Part/Description</label>
+                                <input type="text" class="req-item-desc" placeholder="Enter item description">
+                            </div>
+                            <div class="form-group">
+                                <label>Unit</label>
+                                <input type="number" class="req-item-qty" placeholder="Qty" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>UOM</label>
+                                <select class="req-item-uom">
+                                    <option>EA</option>
+                                    <option>BOX</option>
+                                    <option>METER</option>
+                                    <option>SET</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Price</label>
+                                <input type="number" class="req-item-price" placeholder="Unit price" step="1000">
+                            </div>
+                            <button class="action-btn delete" onclick="this.parentNode.remove()">×</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="req-notes" placeholder="Enter any additional notes..."></textarea>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button style="margin-right: 10px;" onclick="closeModal('new-requisition')">Cancel</button>
+                        <button onclick="submitRequisition()">Submit Requisition</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Purchase Order Tab -->
+        <div id="purchase-order" class="tab-content">
+            <div class="search-bar">
+                <input type="text" placeholder="Search purchase orders...">
+            </div>
+            
+            <table id="po-table">
+                <thead>
+                    <tr>
+                       <th>PO No</th>
+            <th>Date</th>
+            <th>Supplier</th>
+            <th>Part/Description</th>
+           <th>Quantity</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Invoice Tab -->
+        <div id="invoice" class="tab-content">
+            <div class="search-bar">
+                <input type="text" placeholder="Search invoices...">
+            </div>
+            
+            <table id="invoice-table">
+                <thead>
+                    <tr>
+                          <th>Invoice No</th>
+            <th>Date</th>
+            <th>Supplier</th>
+            <th>PO No</th>
+            <th>Part/Description</th>
+              <th>Quantity</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Payment Tab -->
+        <div id="payment" class="tab-content">
+            <div class="search-bar">
+                <input type="text" placeholder="Search payments...">
+            </div>
+            
+            <table id="payment-table">
+                <thead>
+                    <tr>
+                         <th>Payment No</th>
+            <th>Date</th>
+            <th>Supplier</th>
+            <th>Invoice No</th>
+            <th>Part/Description</th>
+           <th>Quantity</th>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- GL History Tab -->
+<div id="gl-history" class="tab-content">
+    <div class="search-bar">
+        <input type="text" id="gl-search" placeholder="Search GL entries..." onkeyup="filterGLTable()">
+        <div style="float: right;">
+            <button style="margin-right: 10px;" onclick="exportGLToPDF()">Export to PDF</button>
+            <button onclick="openModal('gl-filter')">Filter</button>
+        </div>
+    </div>
+    
+    <table id="gl-table">
+        <thead>
+            <tr>
+                 <th>Date</th>
+            <th>GL Account</th>
+            <th>Description</th>
+            <th>Part/Description</th>
+            <th>Quantity</th>
+            <th>Reference</th>
+            <th>Debit</th>
+            <th>Credit</th>
+            <th>Balance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Will be populated by JavaScript -->
+        </tbody>
+    </table>
+    
+    <!-- GL Filter Modal -->
+    <div id="gl-filter" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Filter GL Entries</h2>
+                <button class="close-btn" onclick="closeModal('gl-filter')">&times;</button>
+            </div>
+            
+            <div class="flex-row">
+                <div class="form-group">
+                    <label>From Date</label>
+                    <input type="date" id="gl-filter-from">
+                </div>
+                <div class="form-group">
+                    <label>To Date</label>
+                    <input type="date" id="gl-filter-to">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>GL Account</label>
+                <select id="gl-filter-account">
+                    <option value="">All Accounts</option>
+                    <option value="5010">5010 - Office Supplies</option>
+                    <option value="5020">5020 - Computer Equipment</option>
+                    <option value="5030">5030 - Marketing Materials</option>
+                    <option value="5040">5040 - Maintenance Supplies</option>
+                    <option value="2010">2010 - Accounts Payable</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Reference</label>
+                <input type="text" id="gl-filter-reference" placeholder="Enter reference number">
+            </div>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button style="margin-right: 10px;" onclick="closeModal('gl-filter')">Cancel</button>
+                <button onclick="applyGLFilter()">Apply Filter</button>
+                <button onclick="resetGLFilter()" style="margin-right: 10px; background-color: var(--dark-gray);">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        // Data storage for the application
+        let requisitions = [];
+        let purchaseOrders = [];
+        let invoices = [];
+        let payments = [];
+        let glEntries = [];
+        
+        // Initialize with sample data if needed
+        function initializeSampleData() {
+            if (requisitions.length === 0) {
+                // Add some sample data if arrays are empty
+                const today = new Date().toISOString().split('T')[0];
+                
+                requisitions = [
+                    {
+                        id: 'REQ-' + today.split('-').join('').substr(2) + '-001',
+                        date: today,
+                        department: 'IT',
+                        supplier: 'XYZ Technologies',
+                        glAccount: '5020 - Computer Equipment',
+                        notes: 'Sample initial requisition',
+                        items: [
+                            { description: 'Laptop', qty: 1, uom: 'EA', price: 10000000 }
+                        ],
+                        status: 'approved',
+                        totalAmount: 10000000
+                    }
+                ];
+                
+                purchaseOrders = [
+                    {
+                        id: 'PO-' + today.split('-').join('').substr(2) + '-001',
+                        date: today,
+                        supplier: 'XYZ Technologies',
+                        requisitionId: 'REQ-' + today.split('-').join('').substr(2) + '-001',
+                        glAccount: '5020 - Computer Equipment',
+                        notes: 'Sample PO generated from requisition',
+                        items: [
+                            { description: 'Laptop', qty: 1, uom: 'EA', price: 10000000 }
+                        ],
+                        status: 'approved',
+                        totalAmount: 10000000
+                    }
+                ];
+                
+                invoices = [
+                    {
+                        id: 'INV-' + today.split('-').join('').substr(2) + '-001',
+                        date: today,
+                        supplier: 'XYZ Technologies',
+                        poId: 'PO-' + today.split('-').join('').substr(2) + '-001',
+                        glAccount: '5020 - Computer Equipment',
+                        notes: 'Sample invoice for PO',
+                        items: [
+                            { description: 'Laptop', qty: 1, uom: 'EA', price: 10000000 }
+                        ],
+                        status: 'paid',
+                        totalAmount: 10000000
+                    }
+                ];
+                
+                payments = [
+                    {
+                        id: 'PAY-' + today.split('-').join('').substr(2) + '-001',
+                        date: today,
+                        supplier: 'XYZ Technologies',
+                        invoiceId: 'INV-' + today.split('-').join('').substr(2) + '-001',
+                        glAccount: '5020 - Computer Equipment',
+                        amount: 10000000,
+                        method: 'Bank Transfer',
+                        reference: 'TRX-123456',
+                        notes: 'Payment for laptop',
+                        status: 'completed'
+                    }
+                ];
+                
+                glEntries = [
+                    {
+                        date: today,
+                        glAccount: '5020 - Computer Equipment',
+                        description: 'Purchase of laptop',
+                        reference: 'INV-' + today.split('-').join('').substr(2) + '-001',
+                        debit: 10000000,
+                        credit: 0,
+                        balance: 10000000
+                    },
+                    {
+                        date: today,
+                        glAccount: '2010 - Accounts Payable',
+                        description: 'Purchase of laptop',
+                        reference: 'INV-' + today.split('-').join('').substr(2) + '-001',
+                        debit: 0,
+                        credit: 10000000,
+                        balance: -10000000
+                    },
+                    {
+                        date: today,
+                        glAccount: '2010 - Accounts Payable',
+                        description: 'Payment for laptop',
+                        reference: 'PAY-' + today.split('-').join('').substr(2) + '-001',
+                        debit: 10000000,
+                        credit: 0,
+                        balance: 0
+                    },
+                    {
+                        date: today,
+                        glAccount: '1010 - Cash',
+                        description: 'Payment for laptop',
+                        reference: 'PAY-' + today.split('-').join('').substr(2) + '-001',
+                        debit: 0,
+                        credit: 10000000,
+                        balance: -10000000
+                    }
+                ];
+            }
+        }
+        
+        // Format currency for display
+        function formatCurrency(amount) {
+            return 'Rp' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        
+        // Calculate total amount from items
+        function calculateTotal(items) {
+            return items.reduce((total, item) => total + (item.qty * item.price), 0);
+        }
+        
+        // Update dashboard counters
+        function updateDashboard() {
+            const pendingReqs = requisitions.filter(req => req.status === 'pending').length;
+            const openPOs = purchaseOrders.filter(po => po.status === 'approved').length;
+            const unpaidInvoices = invoices.filter(inv => inv.status === 'pending').length;
+            
+            document.getElementById('pending-reqs').textContent = pendingReqs;
+            document.getElementById('open-pos').textContent = openPOs;
+            document.getElementById('unpaid-invoices').textContent = unpaidInvoices;
+            
+    // Update recent activities
+    const recentActivities = [];
+    
+    // Add requisitions
+    requisitions.slice(0, 3).forEach(req => {
+        recentActivities.push({
+            date: req.date,
+            type: 'Requisition',
+            reference: req.id,
+            partDescription: req.items[0].description, // Take first item's description
+            qty: req.items[0].qty, // Take first item's UOM
+            department: req.department,
+            amount: formatCurrency(req.totalAmount || calculateTotal(req.items)),
+            status: req.status
+        });
+    });
+    
+    // Add POs
+    purchaseOrders.slice(0, 3).forEach(po => {
+        recentActivities.push({
+            date: po.date,
+            type: 'PO',
+            reference: po.id,
+            partDescription: po.items[0].description,
+            qty: po.items[0].qty,
+            department: '',
+            amount: formatCurrency(po.totalAmount || calculateTotal(po.items)),
+            status: po.status
+        });
+    });
+    
+    // Add invoices
+    invoices.slice(0, 3).forEach(inv => {
+        recentActivities.push({
+            date: inv.date,
+            type: 'Invoice',
+            reference: inv.id,
+            partDescription: inv.items[0].description,
+            qty: inv.items[0].qty,
+            department: '',
+            amount: formatCurrency(inv.totalAmount || calculateTotal(inv.items)),
+            status: inv.status
+        });
+    });
+    
+    // Add payments
+    payments.slice(0, 3).forEach(pay => {
+        const inv = invoices.find(i => i.id === pay.invoiceId);
+        recentActivities.push({
+            date: pay.date,
+            type: 'Payment',
+            reference: pay.id,
+            partDescription: inv ? inv.items[0].description : 'N/A',
+            qty: inv ? inv.items[0].qty : 'N/A',
+            department: '',
+            amount: formatCurrency(pay.amount),
+            status: pay.status
+        });
+    });
+    
+    // Sort by date descending and take first 4
+    recentActivities.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const recentTable = document.querySelector('#recent-activities tbody');
+    recentTable.innerHTML = '';
+    
+    recentActivities.slice(0, 4).forEach(activity => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${activity.date}</td>
+            <td>${activity.type}</td>
+            <td>${activity.reference}</td>
+            <td>${activity.partDescription}</td>
+            <td>${activity.qty}</td>
+            <td>${activity.department}</td>
+            <td>${activity.amount}</td>
+            <td><span class="status status-${activity.status}">${activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}</span></td>
+        `;
+        recentTable.appendChild(row);
+    });
+}
+        
+        // Update requisition table
+        function updateRequisitionTable() {
+    const table = document.querySelector('#requisition-table tbody');
+    table.innerHTML = '';
+    
+    requisitions.forEach(req => {
+        const totalAmount = req.totalAmount || calculateTotal(req.items);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${req.id}</td>
+            <td>${req.date}</td>
+            <td>${req.department}</td>
+            <td>${req.items[0].description}</td>
+           <td>${req.items[0].qty}</td>
+            <td>${formatCurrency(totalAmount)}</td>
+            <td><span class="status status-${req.status}">${req.status.charAt(0).toUpperCase() + req.status.slice(1)}</span></td>
+            <td>
+                <button class="action-btn view" onclick="viewRequisition('${req.id}')">View</button>
+                ${req.status === 'pending' ? `
+                    <button class="action-btn edit" onclick="editRequisition('${req.id}')">Edit</button>
+                    <button class="action-btn approve" onclick="approveRequisition('${req.id}')">Approve</button>
+                    <button class="action-btn reject" onclick="rejectRequisition('${req.id}')">Reject</button>
+                ` : ''}
+            </td>
+        `;
+        table.appendChild(row);
+    });
+}
+      function approveRequisition(id) {
+    const req = requisitions.find(r => r.id === id);
+    if (req) {
+        req.status = 'approved';
+        
+        // Generate a new PO
+        const today = new Date().toISOString().split('T')[0];
+        const poId = 'PO-' + today.split('-').join('').substr(2) + '-' + (purchaseOrders.length + 1).toString().padStart(3, '0');
+        
+        purchaseOrders.unshift({
+            id: poId,
+            date: today,
+            supplier: req.supplier,
+            requisitionId: req.id,
+            glAccount: req.glAccount,
+            notes: `Generated from requisition ${req.id}`,
+            items: [...req.items],
+            status: 'approved',
+            totalAmount: req.totalAmount || calculateTotal(req.items)
+        });
+        
+        // Generate an invoice from the PO
+        const invId = generateInvoiceFromPO(poId);
+        
+        updateRequisitionTable();
+        updatePOTable();
+        updateInvoiceTable();
+        updateDashboard();
+        alert(`Requisition approved! PO ${poId} and Invoice ${invId} generated successfully.`);
+    }
+}
+function rejectRequisition(id) {
+    const req = requisitions.find(r => r.id === id);
+    if (req) {
+        req.status = 'rejected';
+        updateRequisitionTable();
+        updateDashboard();
+        alert('Requisition rejected! No PO will be generated.');
+    }
+}
+function generateInvoiceFromPO(poId) {
+    const po = purchaseOrders.find(p => p.id === poId);
+    if (!po) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const invId = 'INV-' + today.split('-').join('').substr(2) + '-' + (invoices.length + 1).toString().padStart(3, '0');
+    
+    invoices.unshift({
+        id: invId,
+        date: today,
+        supplier: po.supplier,
+        poId: po.id,
+        glAccount: po.glAccount,
+        notes: `Generated from PO ${po.id}`,
+        items: [...po.items], // Copy items array
+        status: 'pending',
+        totalAmount: po.totalAmount || calculateTotal(po.items)
+    });
+    
+    updateInvoiceTable();
+    updateDashboard();
+    return invId;
+}
+function editRequisition(id) {
+    const req = requisitions.find(r => r.id === id);
+    if (!req) return;
+    
+    // Isi form dengan data requisition yang ada
+    document.getElementById('req-department').value = req.department;
+    document.getElementById('req-supplier').value = req.supplier;
+    document.getElementById('req-gl-account').value = req.glAccount;
+    document.getElementById('req-notes').value = req.notes;
+    
+    // Kosongkan items yang ada
+    const itemsContainer = document.getElementById('requisition-items');
+    itemsContainer.innerHTML = '';
+    
+    // Tambahkan items dari requisition
+    req.items.forEach(item => {
+        const newItem = document.createElement('div');
+        newItem.className = 'item-row';
+        newItem.innerHTML = `
+            <div class="form-group">
+                <label>Part/Description</label>
+                <input type="text" class="req-item-desc" value="${item.description}">
+            </div>
+            <div class="form-group">
+                <label>Unit</label>
+                <input type="number" class="req-item-qty" value="${item.qty}" min="1">
+            </div>
+            <div class="form-group">
+                <label>UOM</label>
+                <select class="req-item-uom">
+                    <option ${item.uom === 'EA' ? 'selected' : ''}>EA</option>
+                    <option ${item.uom === 'BOX' ? 'selected' : ''}>BOX</option>
+                    <option ${item.uom === 'METER' ? 'selected' : ''}>MATER</option>
+                    <option ${item.uom === 'SET' ? 'selected' : ''}>SET</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Price</label>
+                <input type="number" class="req-item-price" value="${item.price}" step="1000">
+            </div>
+            <button class="action-btn delete" onclick="this.parentNode.remove()">×</button>
+        `;
+        itemsContainer.appendChild(newItem);
+    });
+    
+    // Buka modal
+    openModal('new-requisition');
+    
+    // Simpan ID requisition yang sedang diedit
+    document.getElementById('new-requisition').dataset.editingId = id;
+}
+        
+        // Update PO table
+       function updatePOTable() {
+    const table = document.querySelector('#po-table tbody');
+    table.innerHTML = '';
+    
+    purchaseOrders.forEach(po => {
+        const totalAmount = po.totalAmount || calculateTotal(po.items);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${po.id}</td>
+            <td>${po.date}</td>
+            <td>${po.supplier}</td>
+            <td>${po.items[0].description}</td>
+           <td>${po.items[0].qty}</td>
+            <td>${formatCurrency(totalAmount)}</td>
+            <td><span class="status status-${po.status}">${po.status.charAt(0).toUpperCase() + po.status.slice(1)}</span></td>
+            <td>
+                <button class="action-btn view" onclick="viewPO('${po.id}')">View</button>
+            </td>
+        `;
+        table.appendChild(row);
+    });
+}
+        
+        // Update invoice table
+      function updateInvoiceTable() {
+    const table = document.querySelector('#invoice-table tbody');
+    table.innerHTML = '';
+    
+    invoices.forEach(inv => {
+        const totalAmount = inv.totalAmount || calculateTotal(inv.items);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${inv.id}</td>
+            <td>${inv.date}</td>
+            <td>${inv.supplier}</td>
+            <td>${inv.poId}</td>
+            <td>${inv.items[0].description}</td>
+            <td>${inv.items[0].qty}</td>
+            <td>${formatCurrency(totalAmount)}</td>
+            <td><span class="status status-${inv.status}">${inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}</span></td>
+            <td>
+                <button class="action-btn view" onclick="viewInvoice('${inv.id}')">View</button>
+                ${inv.status === 'pending' ? `
+                    <button class="action-btn approve" onclick="approveInvoice('${inv.id}')">Approve</button>
+                    <button class="action-btn reject" onclick="rejectInvoice('${inv.id}')">Reject</button>
+                ` : ''}
+            </td>
+        `;
+        table.appendChild(row);
+    });
+}
+function approveInvoice(id) {
+    const inv = invoices.find(i => i.id === id);
+    if (inv) {
+        inv.status = 'approved';
+        
+        // Get the GL account from the related PO
+        const po = purchaseOrders.find(p => p.id === inv.poId);
+        const glAccount = po ? po.glAccount : '5020 - Computer Equipment'; // fallback
+        
+        // Generate payment
+        const today = new Date().toISOString().split('T')[0];
+        const payId = 'PAY-' + today.split('-').join('').substr(2) + '-' + (payments.length + 1).toString().padStart(3, '0');
+        
+        payments.unshift({
+            id: payId,
+            date: today,
+            supplier: inv.supplier,
+            invoiceId: inv.id,
+            amount: inv.totalAmount || calculateTotal(inv.items),
+            method: 'Bank Transfer',
+            reference: 'PAY-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+            notes: `Payment for invoice ${inv.id}`,
+            status: 'completed'
+        });
+        
+        // Simplified GL entries (direct to expense and cash)
+        const amount = inv.totalAmount || calculateTotal(inv.items);
+        glEntries.unshift(
+            {
+                date: today,
+                glAccount: glAccount, // Debit to selected GL account
+                description: `Payment for ${inv.id}`,
+                reference: payId,
+                debit: amount,
+                credit: 0,
+                balance: amount
+            },
+            {
+                date: today,
+                glAccount: '1010 - Cash', // Credit to cash
+                description: `Payment for ${inv.id}`,
+                reference: payId,
+                debit: 0,
+                credit: amount,
+                balance: -amount
+            }
+        );
+        
+        updateInvoiceTable();
+        updatePaymentTable();
+        updateGLTable();
+        updateDashboard();
+        alert('Invoice approved and payment recorded!');
+    }
+}
+function rejectInvoice(id) {
+    const inv = invoices.find(i => i.id === id);
+    if (inv) {
+        inv.status = 'rejected';
+        updateInvoiceTable();
+        updateDashboard();
+        alert('Invoice rejected! No payment will be generated.');
+    }
+}
+        // Update payment table
+       function updatePaymentTable() {
+    const table = document.querySelector('#payment-table tbody');
+    table.innerHTML = '';
+    
+    payments.forEach(pay => {
+        const inv = invoices.find(i => i.id === pay.invoiceId);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${pay.id}</td>
+            <td>${pay.date}</td>
+            <td>${pay.supplier}</td>
+            <td>${pay.invoiceId}</td>
+            <td>${inv ? inv.items[0].description : 'N/A'}</td>
+            <td>${inv ? inv.items[0].qty : 'N/A'}</td>
+            <td>${formatCurrency(pay.amount)}</td>
+            <td>${pay.method}</td>
+            <td>
+                <button class="action-btn view" onclick="viewPayment('${pay.id}')">View</button>
+            </td>
+        `;
+        table.appendChild(row);
+    });
+}
+        
+        // Update GL table
+      function updateGLTable(filteredEntries = null) {
+    const table = document.querySelector('#gl-table tbody');
+    table.innerHTML = '';
+    
+    const entriesToShow = filteredEntries || glEntries;
+    
+    entriesToShow.forEach(entry => {
+        // Find related document to get part description and UOM
+        let partDescription = 'N/A';
+        let qty = 'N/A';
+        
+        if (entry.reference.startsWith('REQ-')) {
+            const req = requisitions.find(r => r.id === entry.reference);
+            if (req) {
+                partDescription = req.items[0].description;
+                qty = req.items[0].qty;
+            }
+        } else if (entry.reference.startsWith('PO-')) {
+            const po = purchaseOrders.find(p => p.id === entry.reference);
+            if (po) {
+                partDescription = po.items[0].description;
+                qty = po.items[0].qty;
+            }
+        } else if (entry.reference.startsWith('INV-')) {
+            const inv = invoices.find(i => i.id === entry.reference);
+            if (inv) {
+                partDescription = inv.items[0].description;
+                qty = inv.items[0].qty;
+            }
+        } else if (entry.reference.startsWith('PAY-')) {
+            const pay = payments.find(p => p.id === entry.reference);
+            if (pay) {
+                const inv = invoices.find(i => i.id === pay.invoiceId);
+                if (inv) {
+                    partDescription = inv.items[0].description;
+                    qty = inv.items[0].qty;
+                }
+            }
+        }
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${entry.date}</td>
+            <td>${entry.glAccount}</td>
+            <td>${entry.description}</td>
+            <td>${partDescription}</td>
+            <td>${qty}</td>
+            <td>${entry.reference}</td>
+            <td>${entry.debit ? formatCurrency(entry.debit) : 'Rp0'}</td>
+            <td>${entry.credit ? formatCurrency(entry.credit) : 'Rp0'}</td>
+            <td>${formatCurrency(entry.balance)}</td>
+        `;
+        table.appendChild(row);
+    });
+}
+// Export GL to PDF function
+function exportGLToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text('General Ledger History', 14, 15);
+    
+    // Add date
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
+    
+    // Prepare data for the table
+    const headers = [
+        ['Date', 'GL Account', 'Description', 'Reference', 'Debit', 'Credit', 'Balance']
+    ];
+    
+    const data = glEntries.map(entry => [
+        entry.date,
+        entry.glAccount,
+        entry.description,
+        entry.reference,
+        entry.debit ? formatCurrency(entry.debit) : 'Rp0',
+        entry.credit ? formatCurrency(entry.credit) : 'Rp0',
+        formatCurrency(entry.balance)
+    ]);
+    
+    // Add table
+    doc.autoTable({
+        head: headers,
+        body: data,
+        startY: 25,
+        styles: {
+            fontSize: 8,
+            cellPadding: 2
+        },
+        columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 30 },
+            2: { cellWidth: 40 },
+            3: { cellWidth: 30 },
+            4: { cellWidth: 20 },
+            5: { cellWidth: 20 },
+            6: { cellWidth: 20 }
+        },
+        headStyles: {
+            fillColor: [37, 99, 235], // Primary color
+            textColor: 255 // White text
+        }
+    });
+    
+    // Save the PDF
+    doc.save('GL_History_Report.pdf');
+}
+
+// Filter GL table based on search input
+function filterGLTable() {
+    const searchText = document.getElementById('gl-search').value.toLowerCase();
+    const rows = document.querySelectorAll('#gl-table tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchText) ? '' : 'none';
+    });
+}
+
+// Apply GL filter from modal
+function applyGLFilter() {
+    const fromDate = document.getElementById('gl-filter-from').value;
+    const toDate = document.getElementById('gl-filter-to').value;
+    const glAccount = document.getElementById('gl-filter-account').value;
+    const reference = document.getElementById('gl-filter-reference').value.toLowerCase();
+    
+    const filteredEntries = glEntries.filter(entry => {
+        // Date filter
+        if (fromDate && entry.date < fromDate) return false;
+        if (toDate && entry.date > toDate) return false;
+        
+        // GL Account filter
+        if (glAccount && !entry.glAccount.startsWith(glAccount)) return false;
+        
+        // Reference filter
+        if (reference && !entry.reference.toLowerCase().includes(reference)) return false;
+        
+        return true;
+    });
+    
+    // Update the table with filtered data
+    const table = document.querySelector('#gl-table tbody');
+    table.innerHTML = '';
+    
+    filteredEntries.forEach(entry => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${entry.date}</td>
+            <td>${entry.glAccount}</td>
+            <td>${entry.description}</td>
+            <td>${entry.reference}</td>
+            <td>${entry.debit ? formatCurrency(entry.debit) : 'Rp0'}</td>
+            <td>${entry.credit ? formatCurrency(entry.credit) : 'Rp0'}</td>
+            <td>${formatCurrency(entry.balance)}</td>
+        `;
+        table.appendChild(row);
+    });
+    
+    closeModal('gl-filter');
+}
+
+// Reset GL filter
+function resetGLFilter() {
+    document.getElementById('gl-filter-from').value = '';
+    document.getElementById('gl-filter-to').value = '';
+    document.getElementById('gl-filter-account').value = '';
+    document.getElementById('gl-filter-reference').value = '';
+    
+    // Update the table with all data
+    updateGLTable();
+    closeModal('gl-filter');
+}
+        // View requisition details
+        function viewRequisition(id) {
+            const req = requisitions.find(r => r.id === id);
+            if (!req) return;
+            
+            alert(`Requisition Details:\n\nID: ${req.id}\nDate: ${req.date}\nDepartment: ${req.department}\nSupplier: ${req.supplier}\nGL Account: ${req.glAccount}\nStatus: ${req.status}\nTotal Amount: ${formatCurrency(req.totalAmount || calculateTotal(req.items))}\n\nItems:\n${req.items.map(item => `${item.description} - ${item.qty} ${item.uom} @ ${formatCurrency(item.price)}`).join('\n')}`);
+        }
+        
+        // View PO details
+        function viewPO(id) {
+            const po = purchaseOrders.find(p => p.id === id);
+            if (!po) return;
+            
+            alert(`Purchase Order Details:\n\nID: ${po.id}\nDate: ${po.date}\nSupplier: ${po.supplier}\nRequisition ID: ${po.requisitionId}\nGL Account: ${po.glAccount}\nStatus: ${po.status}\nTotal Amount: ${formatCurrency(po.totalAmount || calculateTotal(po.items))}\n\nItems:\n${po.items.map(item => `${item.description} - ${item.qty} ${item.uom} @ ${formatCurrency(item.price)}`).join('\n')}`);
+        }
+        
+        // View invoice details
+        function viewInvoice(id) {
+            const inv = invoices.find(i => i.id === id);
+            if (!inv) return;
+            
+            alert(`Invoice Details:\n\nID: ${inv.id}\nDate: ${inv.date}\nSupplier: ${inv.supplier}\nPO ID: ${inv.poId}\nGL Account: ${inv.glAccount}\nStatus: ${inv.status}\nTotal Amount: ${formatCurrency(inv.totalAmount || calculateTotal(inv.items))}\n\nItems:\n${inv.items.map(item => `${item.description} - ${item.qty} ${item.uom} @ ${formatCurrency(item.price)}`).join('\n')}`);
+        }
+        
+        // View payment details
+        function viewPayment(id) {
+            const pay = payments.find(p => p.id === id);
+            if (!pay) return;
+            
+            alert(`Payment Details:\n\nID: ${pay.id}\nDate: ${pay.date}\nSupplier: ${pay.supplier}\nInvoice ID: ${pay.invoiceId}\nAmount: ${formatCurrency(pay.amount)}\nMethod: ${pay.method}\nReference: ${pay.reference}\nStatus: ${pay.status}`);
+        }
+        function openTab(tabName) {
+    // Hide all tab contents
+    const tabContents = document.getElementsByClassName('tab-content');
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove('active');
+    }
+    
+    // Deactivate all tabs
+    const tabs = document.getElementsByClassName('tab');
+    for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+    }
+    
+    // Activate the selected tab and content
+    document.getElementById(tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+        function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+        // Submit new requisition
+       function submitRequisition() {
+    const department = document.getElementById('req-department').value;
+    const supplier = document.getElementById('req-supplier').value;
+    const glAccount = document.getElementById('req-gl-account').value;
+    const notes = document.getElementById('req-notes').value;
+    
+    // Get items
+    const itemRows = document.querySelectorAll('.item-row');
+    const items = [];
+    
+    itemRows.forEach(row => {
+        items.push({
+            description: row.querySelector('.req-item-desc').value,
+            qty: parseInt(row.querySelector('.req-item-qty').value),
+            uom: row.querySelector('.req-item-uom').value,
+            price: parseFloat(row.querySelector('.req-item-price').value)
+        });
+    });
+    
+    // Validate
+    if (department === 'Select Department' || supplier === 'Select Supplier' || 
+        glAccount === 'Select GL Account' || items.length === 0) {
+        alert('Please fill all required fields!');
+        return;
+    }
+    
+    // Validate items
+    for (const item of items) {
+        if (!item.description || isNaN(item.qty)) {
+            alert('Please fill all item fields correctly!');
+            return;
+        }
+    }
+    
+    const editingId = document.getElementById('new-requisition').dataset.editingId;
+    
+    if (editingId) {
+        // Edit existing requisition
+        const req = requisitions.find(r => r.id === editingId);
+        if (req) {
+            req.department = department;
+            req.supplier = supplier;
+            req.glAccount = glAccount;
+            req.notes = notes;
+            req.items = items;
+            req.totalAmount = calculateTotal(items);
+        }
+    } else {
+        // Create new requisition
+        const today = new Date().toISOString().split('T')[0];
+        const reqId = 'REQ-' + today.split('-').join('').substr(2) + '-' + (requisitions.length + 1).toString().padStart(3, '0');
+        
+        requisitions.unshift({
+            id: reqId,
+            date: today,
+            department,
+            supplier,
+            glAccount,
+            notes,
+            items,
+            status: 'pending',
+            totalAmount: calculateTotal(items)
+        });
+    }
+    
+    // Close modal and refresh
+    closeModal('new-requisition');
+    updateRequisitionTable();
+    updateDashboard();
+    
+    // Show success message
+    alert(`Requisition ${editingId ? 'updated' : 'submitted'} successfully!`);
+    
+    // Clear editing ID
+    delete document.getElementById('new-requisition').dataset.editingId;
+}
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html> 
